@@ -1,0 +1,30 @@
+---
+- name: Read the short config
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+  vars:
+    policyflow_config: "{{ playbook_dir }}/../config/policyflow.yml"
+  tasks:
+    - name: Validate frameworks, report detail, email, and rules
+      ansible.builtin.import_role:
+        name: config
+
+- name: Show the rules a later release will apply
+  hosts: linux
+  gather_facts: false
+  become: false
+  vars:
+    policyflow_config: "{{ playbook_dir }}/../config/policyflow.yml"
+  tasks:
+    - name: Validate frameworks, report detail, email, and rules
+      ansible.builtin.import_role:
+        name: config
+
+    - name: List each custom rule without changing the machine
+      ansible.builtin.debug:
+        msg: >-
+          {{ item.name }} action {{ item.action }} is recorded.
+          This release does not change {{ inventory_hostname }}.
+      loop: "{{ rules }}"

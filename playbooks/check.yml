@@ -1,0 +1,31 @@
+---
+- name: Read the short config
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+  vars:
+    policyflow_config: "{{ playbook_dir }}/../config/policyflow.yml"
+  tasks:
+    - name: Validate frameworks, report detail, email, and rules
+      ansible.builtin.import_role:
+        name: config
+
+- name: Read each Linux lab machine
+  hosts: linux
+  gather_facts: true
+  become: false
+  vars:
+    policyflow_config: "{{ playbook_dir }}/../config/policyflow.yml"
+  tasks:
+    - name: Validate frameworks, report detail, email, and rules
+      ansible.builtin.import_role:
+        name: config
+
+    - name: Record the read
+      ansible.builtin.debug:
+        msg: >-
+          Read {{ inventory_hostname }}.
+          Frameworks {{ frameworks | join(', ') }}.
+          Report {{ report_detail }}.
+          No change was made.

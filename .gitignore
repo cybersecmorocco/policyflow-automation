@@ -1,1 +1,4 @@
 docs/research/
+.vagrant/
+inventories/vagrant.ini
+*.retry

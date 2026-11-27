@@ -1,0 +1,23 @@
+---
+# Short config. Edit this file. Do not edit the playbooks for a normal run.
+frameworks:
+  - cis
+  - disa
+  - nist
+  - pci
+  - hipaa
+  - nis2
+
+# summary: fleet rows. full: one section per machine.
+report_detail: summary
+
+# Omit this block and no mail is sent.
+# email:
+#   to: ops@example.com
+#   smtp_host: smtp.example.com
+
+rules:
+  - name: allow-https
+    action: allow
+    port: 443
+    source: any

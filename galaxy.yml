@@ -1,0 +1,22 @@
+namespace: policyflow
+name: automation
+version: 0.1.0
+readme: README.md
+authors:
+  - cybersecmorocco
+description: >-
+  Check Linux, Windows, macOS, and firewalls against a short config,
+  write a PDF report, and apply firewall and access rules you define.
+license:
+  - MIT
+tags:
+  - compliance
+  - firewall
+  - security
+repository: https://github.com/cybersecmorocco/policyflow-automation
+issues: https://github.com/cybersecmorocco/policyflow-automation/issues
+build_ignore:
+  - .vagrant
+  - docs
+  - vagrant
+  - inventories/vagrant.ini

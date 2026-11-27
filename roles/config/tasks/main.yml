@@ -1,0 +1,33 @@
+---
+- name: Load the short config
+  ansible.builtin.include_vars:
+    file: "{{ policyflow_config }}"
+
+- name: Accept only the known frameworks
+  ansible.builtin.assert:
+    that:
+      - item in ['cis', 'disa', 'nist', 'pci', 'hipaa', 'nis2']
+    fail_msg: "Unknown framework {{ item }}. Use cis, disa, nist, pci, hipaa, or nis2."
+  loop: "{{ frameworks }}"
+
+- name: Accept summary or full report detail
+  ansible.builtin.assert:
+    that:
+      - report_detail in ['summary', 'full']
+    fail_msg: "report_detail must be summary or full."
+
+- name: Accept custom rules with a name and an action
+  ansible.builtin.assert:
+    that:
+      - item.name | length > 0
+      - item.action in ['allow', 'deny']
+    fail_msg: "Each rule needs a name and an action of allow or deny."
+  loop: "{{ rules }}"
+
+- name: Accept email settings only when the block is present
+  ansible.builtin.assert:
+    that:
+      - email.to | length > 0
+      - email.smtp_host | length > 0
+    fail_msg: "Email settings need to and smtp_host, or omit the email block."
+  when: email is defined

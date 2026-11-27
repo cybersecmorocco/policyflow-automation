@@ -43,26 +43,34 @@ The same collection can set the machines to a firewall and access-control baseli
 
 ## How a run is started
 
-The inputs stay small. Frameworks, report detail, optional email, and your rules live in one config file. Inventory selects the machines. Two playbooks use that file:
+The inputs stay small. Frameworks, report detail, optional email, and your rules live in `config/policyflow.yml`. Inventory selects the machines. Two playbooks use that file:
 
 ```bash
-ansible-playbook playbooks/check.yml
-ansible-playbook playbooks/configure.yml
+ansible-playbook playbooks/check.yml -i inventories/vagrant.ini
+ansible-playbook playbooks/configure.yml -i inventories/vagrant.ini
 ```
 
-Those playbooks are the interface. There is no separate product beside the collection.
+Check only reads the machine. Configure in this release validates the rules and does not change the machine. Applying those rules comes in a later release.
 
-## Testing
+## Linux lab
 
-Every change is validated on lab machines created with Vagrant. The step-by-step for a person who wants to try a change is:
+Install this, then start the box:
 
-1. Install Vagrant and Ansible.
-2. Start the boxes the change touches.
-3. Run the check playbook.
-4. Open the PDF and read the dashboard, the fleet summary, and the per-machine pages when detail is on.
-5. Change a module or a rule and run the same playbook again.
+1. Install [Vagrant](https://developer.hashicorp.com/vagrant/install).
+2. Install VirtualBox, or install Docker if you already work with containers. When VirtualBox is absent, `vagrant up` builds the Linux machine from `vagrant/linux`.
+3. Install Ansible. ansible-core 2.16 or newer.
 
-The `Vagrantfile` has a machine per target family and per firewall type: Linux, Windows, macOS, and each firewall implementation we claim. Where a firewall already publishes a container image, the lab starts that container instead of a full virtual machine. Vagrant remains the single way to bring the lab up.
+From a clean checkout:
+
+```bash
+vagrant up
+scripts/write-inventory.sh
+ansible-playbook playbooks/check.yml -i inventories/vagrant.ini
+```
+
+`vagrant up` starts the machine named `linux`. The script writes `inventories/vagrant.ini` from `vagrant ssh-config`. That file stays off the git history because it contains a path to a local key.
+
+The `Vagrantfile` will gain a machine per target family and per firewall type: Windows, macOS, and each firewall implementation. Where a firewall already publishes a container image, the lab starts that container. Vagrant remains the single way to bring the lab up.
 
 The macOS guest follows the Vagrant box pattern published by [ramsey/macos-vagrant-box](https://github.com/ramsey/macos-vagrant-box): a VirtualBox box, a `vagrant` user, and SSH. It is used only in line with the [Apple software license](https://www.apple.com/legal/sla/). The guest is started on a Mac host. The published Ramsey boxes go through Catalina. A newer macOS lab box is built with the same [macinbox](https://github.com/bacongravy/macinbox) method.
 
