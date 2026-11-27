@@ -38,6 +38,28 @@
       loop: "{{ rule_checks.results }}"
       when: item.finding is defined
 
+    - name: Test the host controls
+      policyflow_check:
+        kind: control
+        name: "{{ item.name }}"
+        desired: "{{ item.desired }}"
+      loop:
+        - name: ssh_root_login
+          desired: "no"
+        - name: ssh_password_auth
+          desired: "no"
+        - name: firewall_default
+          desired: drop
+        - name: logging_service
+          desired: running
+      register: control_checks
+
+    - name: Keep the control results for the report
+      ansible.builtin.set_fact:
+        policyflow_findings: "{{ policyflow_findings | default([]) + [item.finding] }}"
+      loop: "{{ control_checks.results }}"
+      when: item.finding is defined
+
 - name: Write the report
   hosts: localhost
   connection: local
