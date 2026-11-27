@@ -77,6 +77,11 @@
           }}
       loop: "{{ groups['linux'] }}"
 
+    - name: Write the PDF dashboard
+      policyflow_report:
+        dest: "{{ playbook_dir }}/../reports/policyflow.pdf"
+        hosts: "{{ report_hosts }}"
+
     - name: Write the text report
       ansible.builtin.copy:
         dest: "{{ playbook_dir }}/../reports/policyflow.txt"
