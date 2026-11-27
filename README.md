@@ -35,7 +35,7 @@ The check writes a PDF.
 - The next pages summarize the fleet, one row per machine.
 - When the config asks for detail, each machine gets its own pages: control, framework, result, actual value, and expected value.
 
-If the config includes email settings, the playbook sends that PDF. If the email block is absent, the file is still written and nothing is sent.
+The check writes that dashboard to `reports/policyflow.pdf`. If the config includes email settings, the playbook sends that PDF. If the email block is absent, the file is still written and nothing is sent.
 
 ## Configure
 
@@ -68,6 +68,8 @@ scripts/write-inventory.sh
 ansible-playbook playbooks/check.yml -i inventories/vagrant.ini
 ```
 
+Open `reports/policyflow.pdf`. The first page shows the machines in the run, the score, and the pass, fail, and waived counts.
+
 `vagrant up` starts the machine named `linux`. The script writes `inventories/vagrant.ini` from `vagrant ssh-config`. That file stays off the git history because it contains a path to a local key.
 
 The `Vagrantfile` will gain a machine per target family and per firewall type: Windows, macOS, and each firewall implementation. Where a firewall already publishes a container image, the lab starts that container. Vagrant remains the single way to bring the lab up.
@@ -76,4 +78,4 @@ The macOS guest follows the Vagrant box pattern published by [ramsey/macos-vagra
 
 ## Status
 
-This repository currently explains the project. The collection modules, the compliance content, the PDF, the `Vagrantfile`, and the step-by-step test guide are the work tracked on the project board.
+The Linux check writes `reports/policyflow.pdf`. Windows, macOS, the other firewall types, and applying rules are still open on the project board.
