@@ -22,10 +22,48 @@
       ansible.builtin.import_role:
         name: config
 
-    - name: Record the read
-      ansible.builtin.debug:
-        msg: >-
-          Read {{ inventory_hostname }}.
-          Frameworks {{ frameworks | join(', ') }}.
-          Report {{ report_detail }}.
-          No change was made.
+    - name: Test each configured rule on this machine
+      policyflow_check:
+        kind: rule
+        name: "{{ item.name }}"
+        action: "{{ item.action }}"
+        port: "{{ item.port }}"
+        source: "{{ item.source }}"
+      loop: "{{ rules }}"
+      register: rule_checks
+
+    - name: Keep the rule results for the report
+      ansible.builtin.set_fact:
+        policyflow_findings: "{{ policyflow_findings | default([]) + [item.finding] }}"
+      loop: "{{ rule_checks.results }}"
+      when: item.finding is defined
+
+- name: Write the report
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Collect findings from each machine
+      ansible.builtin.set_fact:
+        report_hosts: >-
+          {{
+            report_hosts | default([]) + [{
+              'host': item,
+              'findings': hostvars[item].policyflow_findings | default([])
+            }]
+          }}
+      loop: "{{ groups['linux'] }}"
+
+    - name: Write the text report
+      ansible.builtin.copy:
+        dest: "{{ playbook_dir }}/../reports/policyflow.txt"
+        mode: "0644"
+        content: |
+          {% for machine in report_hosts %}
+          host {{ machine.host }}
+          {% for finding in machine.findings %}
+          {{ finding.name }}  {{ finding.result }}  desired={{ finding.desired }}  observed={{ finding.observed }}
+          {% endfor %}
+          {% endfor %}
+
